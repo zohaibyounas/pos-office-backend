@@ -1,33 +1,76 @@
 import express from "express";
-import User from "../models/User.js"; // ✅ path must match filename and case exactly
+import User from "../models/User.js";
 
 const router = express.Router();
 
+// GET all users
 router.get("/", async (req, res) => {
   const users = await User.find();
   res.json(users);
 });
 
+// CREATE new user
 router.post("/", async (req, res) => {
-  const { email, password, role } = req.body;
-  const newUser = new User({ email, password, role });
+  const {
+    email,
+    password,
+    role,
+    phone,
+    cnic,
+    monthlySalary,
+    commissionEnabled,
+    commissionRate,
+  } = req.body;
+
+  const newUser = new User({
+    email,
+    password,
+    role,
+    phone,
+    cnic,
+    monthlySalary,
+    commissionEnabled,
+    commissionRate,
+  });
+
   await newUser.save();
   res.status(201).json(newUser);
 });
 
-// Update user
+// UPDATE user
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { email, password, role } = req.body;
-  const updated = await User.findByIdAndUpdate(
+
+  const {
+    email,
+    password,
+    role,
+    phone,
+    cnic,
+    monthlySalary,
+    commissionEnabled,
+    commissionRate,
+  } = req.body;
+
+  const updatedUser = await User.findByIdAndUpdate(
     id,
-    { email, password, role },
+    {
+      email,
+      password,
+      role,
+      phone,
+      cnic,
+      monthlySalary,
+      commissionEnabled,
+      commissionRate,
+    },
     { new: true }
   );
-  res.json(updated);
+
+  res.json(updatedUser);
 });
 
-// Delete user
+// DELETE user
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   await User.findByIdAndDelete(id);

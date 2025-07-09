@@ -9,7 +9,7 @@ import saleRoutes from "./routes/sale.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js";
 import purchaseReturnRoutes from "./routes/purchaseReturn.js";
 import salesReportRoute from "./routes/salesReport.js";
-
+import expenseRoutes from "./routes/expenseRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -34,6 +34,8 @@ app.use("/api/purchases", purchaseRoutes);
 app.use("/api/purchase-returns", purchaseReturnRoutes);
 
 app.use(salesReportRoute);
+
+app.use("/api/expenses", expenseRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
