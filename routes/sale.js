@@ -14,9 +14,18 @@ router.post("/", async (req, res) => {
           throw new Error(`Product not found with ID: ${item.productId}`);
         }
 
+        // Deduct the quantity sold from product stock
+        if (product.quantity < item.quantity) {
+          throw new Error(
+            `Not enough stock for product ${product.name}. Available: ${product.quantity}, Requested: ${item.quantity}`
+          );
+        }
+        product.quantity -= item.quantity;
+        await product.save();
+
         return {
           ...item,
-          costPrice: product.costPrice || 0, // ✅ Store costPrice in sale
+          costPrice: product.costPrice || 0,
         };
       })
     );
@@ -76,9 +85,18 @@ router.post("/:id/return", async (req, res) => {
       return res.status(404).json({ message: "Sale not found" });
     }
 
+    // Add returned quantities back to product stock
+    for (const item of returnedItems) {
+      const product = await Product.findById(item.productId);
+      if (product) {
+        product.quantity += item.quantity;
+        await product.save();
+      }
+    }
+
     sale.isReturned = true;
     sale.returnedItems = returnedItems;
-    sale.refundAmount = refundAmount;
+    sale.totalRefundAmount = refundAmount;
 
     await sale.save();
 
