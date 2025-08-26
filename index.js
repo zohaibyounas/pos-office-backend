@@ -10,10 +10,25 @@ import purchaseRoutes from "./routes/purchaseRoutes.js";
 import purchaseReturnRoutes from "./routes/purchaseReturn.js";
 import salesReportRoute from "./routes/salesReport.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
+
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// ✅ CORS setup
+app.use(
+  cors({
+    origin: [
+      "https://pos-office-frontend.vercel.app",
+      "http://localhost:5173",
+      "http://localhost:3000",
+    ],
+    // allow frontend
+    methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
+    credentials: true, // allow cookies/auth headers if needed
+  })
+);
+
 app.use(express.json());
 
 // MongoDB connection
@@ -24,17 +39,12 @@ mongoose
 
 // Routes
 app.use("/api/products", productRoutes);
-app.use("/api/auth", authRoutes); // ✅ Login endpoint: POST /api/auth/login
-app.use("/api/users", userRoutes); // ✅ User CRUD: GET/POST /api/users
-
-app.use("/api/sales", saleRoutes); // ✅ This must match exactly!
-
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/sales", saleRoutes);
 app.use("/api/purchases", purchaseRoutes);
-
 app.use("/api/purchase-returns", purchaseReturnRoutes);
-
 app.use(salesReportRoute);
-
 app.use("/api/expenses", expenseRoutes);
 
 const PORT = process.env.PORT || 5000;
