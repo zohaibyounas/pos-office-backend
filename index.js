@@ -20,6 +20,7 @@ app.use(
   cors({
     origin: [
       "https://pos-office-frontend.vercel.app",
+      "https://www.cielonoir-backend.shop",
       "http://localhost:5173",
       "http://localhost:3000",
     ],
