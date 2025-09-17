@@ -64,12 +64,24 @@ router.delete("/:id", async (req, res) => {
 });
 
 // Update a sale by ID
+// Update a sale by ID with reason
 router.put("/:id", async (req, res) => {
   try {
-    const updatedSale = await Sale.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.json(updatedSale);
+    const { reason, ...updateData } = req.body;
+
+    const sale = await Sale.findById(req.params.id);
+    if (!sale) return res.status(404).json({ message: "Sale not found" });
+
+    // Save reason with timestamp
+    if (reason) {
+      sale.editReasons.push({ reason, editedAt: new Date() }); // ✅ include timestamp
+    }
+
+    // Update other fields
+    Object.assign(sale, updateData);
+    await sale.save();
+
+    res.json(sale);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

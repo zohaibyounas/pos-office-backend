@@ -47,7 +47,15 @@ const saleSchema = new mongoose.Schema(
       },
     ],
     totalRefundAmount: { type: Number, default: 0 },
-    netProfit: Number, // totalProfit minus any returns
+    netProfit: Number,
+
+    // 🔥 New field for tracking edit reasons
+    editReasons: [
+      {
+        reason: String,
+        editedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );
