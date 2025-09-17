@@ -69,13 +69,35 @@ saleSchema.pre("save", function (next) {
     return product;
   });
 
+  // Apply discount proportionally if exists
+  if (this.discount && this.discount > 0) {
+    const totalBeforeDiscount = this.products.reduce(
+      (sum, product) => sum + product.totalPrice,
+      0
+    );
+
+    if (totalBeforeDiscount > 0) {
+      this.products = this.products.map((product) => {
+        const share =
+          (product.totalPrice / totalBeforeDiscount) * this.discount;
+        product.totalPrice = product.totalPrice - share; // ✅ discounted product price
+        return product;
+      });
+    }
+  }
+
   // Calculate sale-wide metrics
   this.totalCost = this.products.reduce(
     (sum, product) => sum + product.costPrice * product.quantity,
     0
   );
 
-  // Calculate profit as (sum of product profits) - discount
+  this.grandTotal = this.products.reduce(
+    (sum, product) => sum + product.totalPrice,
+    0
+  );
+
+  // Profit after discount
   this.totalProfit =
     this.products.reduce((sum, product) => sum + product.profit, 0) -
     (this.discount || 0);
@@ -83,7 +105,7 @@ saleSchema.pre("save", function (next) {
   this.profitMargin =
     this.grandTotal > 0 ? (this.totalProfit / this.grandTotal) * 100 : 0;
 
-  // Handle returns if any
+  // Handle returns
   if (this.isReturned) {
     this.netProfit = this.totalProfit - this.totalRefundAmount;
   } else {
