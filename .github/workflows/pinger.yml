@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: Curl Ping Render App
         run: |
-          curl -I https://pos-office-backend.onrender.com || true
+          curl -I https://pos-office-backend-1.onrender.com || true
