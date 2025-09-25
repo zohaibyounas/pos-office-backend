@@ -23,6 +23,7 @@ app.use(
       "https://www.cielonoir-backend.shop",
       "http://localhost:5173",
       "http://localhost:3000",
+      "https://www.cielinoir.shop",
     ],
     // allow frontend
     methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
