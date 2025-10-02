@@ -1,4 +1,3 @@
-// models/User.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -7,13 +6,9 @@ const userSchema = new mongoose.Schema({
   role: String, // 'admin', 'user', 'cashier'
   phone: String,
   cnic: String,
-  monthlySalary: { type: Number, default: 0 },
-  barcode: { type: String, unique: true }, // for scanning user card
-  commissionEarned: { type: Number, default: 0 }, // running commission
-});
-
-userSchema.virtual("totalSalary").get(function () {
-  return this.monthlySalary + this.commissionEarned;
+  monthlySalary: Number,
+  commissionEnabled: { type: Boolean, default: true },
+  commissionRate: { type: Number, default: 2.5 },
 });
 
 const User = mongoose.model("User", userSchema);
