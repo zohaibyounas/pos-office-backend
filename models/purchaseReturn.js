@@ -14,6 +14,7 @@ const purchaseReturnSchema = new mongoose.Schema(
         code: String,
         quantity: Number,
         price: Number,
+        costPrice: Number,
       },
     ],
     total: Number,

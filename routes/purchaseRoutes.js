@@ -1,15 +1,25 @@
+// routes/purchaseroute.js
 import express from "express";
+import multer from "multer";
+
 import {
   getAllPurchases,
   createPurchase,
   updatePurchase,
   deletePurchase,
   getPurchase,
+  addPayment,
 } from "../controllers/purchaseController.js";
 
-import Purchase from "../models/Purchase.js"; // make sure this path is correct
+import Purchase from "../models/Purchase.js";
 
 const router = express.Router();
+
+// ✅ Use memory storage for Cloudinary upload
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Report route
 router.get("/report", async (req, res) => {
   try {
     const { startDate, endDate, supplier, paymentType } = req.query;
@@ -23,16 +33,10 @@ router.get("/report", async (req, res) => {
       };
     }
 
-    if (supplier) {
-      filter.supplier = supplier;
-    }
-
-    if (paymentType) {
-      filter.paymentType = paymentType;
-    }
+    if (supplier) filter.supplier = supplier;
+    if (paymentType) filter.paymentType = paymentType;
 
     const purchases = await Purchase.find(filter).sort({ createdAt: -1 });
-    // console.log("Found Purchases:", purchases);
 
     const totalPurchases = purchases.reduce(
       (sum, p) => sum + (p.grandTotal || 0),
@@ -58,13 +62,16 @@ router.get("/report", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch purchases report" });
   }
 });
-// Existing CRUD routes
+
+// ✅ CRUD routes
 router.get("/", getAllPurchases);
 router.get("/:id", getPurchase);
-router.post("/", createPurchase);
-router.put("/:id", updatePurchase);
+
+router.post("/", upload.single("billImage"), createPurchase);
+router.put("/:id", upload.single("billImage"), updatePurchase);
 router.delete("/:id", deletePurchase);
 
-// ✅ New: Get filtered purchases report
+// ✅ Add payment route
+router.post("/:id/payments", addPayment);
 
 export default router;

@@ -10,8 +10,17 @@ import purchaseRoutes from "./routes/purchaseRoutes.js";
 import purchaseReturnRoutes from "./routes/purchaseReturn.js";
 import salesReportRoute from "./routes/salesReport.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
+import cloudinary from "cloudinary";
+import attendanceRoutes from "./routes/attendance.js";
+import commentRoutes from "./routes/commentRoutes.js";
 
 dotenv.config();
+
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const app = express();
 
@@ -48,6 +57,8 @@ app.use("/api/purchases", purchaseRoutes);
 app.use("/api/purchase-returns", purchaseReturnRoutes);
 app.use(salesReportRoute);
 app.use("/api/expenses", expenseRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/comments", commentRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

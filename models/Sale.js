@@ -12,6 +12,10 @@ const productSubSchema = new mongoose.Schema({
   profit: Number,
   // per-unit discount (absolute). Example: discount: 100 => Rs100 off per unit
   discount: { type: Number, default: 0 },
+  selectedVariant: {
+    size: String,
+    color: String,
+  },
 });
 
 const saleSchema = new mongoose.Schema(
@@ -46,9 +50,11 @@ const saleSchema = new mongoose.Schema(
         refundAmount: Number,
         profitLoss: Number,
         reason: String,
+        returnDate: { type: Date }, // <-- per-item date
       },
     ],
     totalRefundAmount: { type: Number, default: 0 },
+    returnDate: { type: Date }, // <-- NEW: overall return date
     netProfit: Number,
 
     editReasons: [
