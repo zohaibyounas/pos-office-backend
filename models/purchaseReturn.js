@@ -15,6 +15,9 @@ const purchaseReturnSchema = new mongoose.Schema(
         quantity: Number,
         price: Number,
         costPrice: Number,
+        // Add variant fields
+        variantSize: String,
+        variantColor: String,
       },
     ],
     total: Number,

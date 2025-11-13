@@ -9,8 +9,11 @@ const itemSchema = new mongoose.Schema({
   qty: Number,
   discount: Number,
   total: Number,
+  // Add variant fields
+  variantSku: String, // to identify specific variant
+  variantSize: String,
+  variantColor: String,
 });
-
 const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true, default: 0 },
   method: { type: String, default: "Cash" }, // e.g., Cash, Bank, Card

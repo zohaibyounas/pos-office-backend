@@ -50,6 +50,9 @@ export const getPurchase = async (req, res) => {
 
 // POST /api/purchases
 // POST /api/purchases
+// POST /api/purchases
+// POST /api/purchases
+// POST /api/purchases
 export const createPurchase = async (req, res) => {
   try {
     const body = req.body || {};
@@ -100,12 +103,72 @@ export const createPurchase = async (req, res) => {
     const purchase = new Purchase(purchaseData);
     await purchase.save();
 
-    // ✅ Update product stock for items
+    // ✅ Update product stock for items - FIXED FOR YOUR VARIANT STRUCTURE
     for (const item of purchase.items || []) {
       const product = await Product.findOne({ code: item.code });
       if (product) {
-        product.stock = (product.stock || 0) + (item.qty || 0);
-        await product.save();
+        // console.log(
+        //   `🔄 Processing product: ${product.name}, Code: ${product.code}`
+        // );
+        // console.log(
+        //   `📦 Item has variant - Size: ${item.variantSize}, Color: ${item.variantColor}`
+        // );
+
+        if (product.hasVariants && item.variantSize && item.variantColor) {
+          // Update specific variant stock - match by both size AND color
+          const variantIndex = product.variants.findIndex(
+            (v) => v.size === item.variantSize && v.color === item.variantColor
+          );
+
+          if (variantIndex !== -1) {
+            const oldStock = product.variants[variantIndex].stock || 0;
+            const qtyToAdd = item.qty || 0;
+
+            // Update variant stock
+            product.variants[variantIndex].stock = oldStock + qtyToAdd;
+
+            // Also update variant cost price if provided in purchase
+            if (item.costPrice) {
+              product.variants[variantIndex].costPrice = item.costPrice;
+            }
+
+            // console.log(
+            //   `✅ Updated variant ${item.variantSize}/${item.variantColor} stock: ${oldStock} + ${qtyToAdd} = ${product.variants[variantIndex].stock}`
+            // );
+
+            // Save the product - this will trigger the pre-save hook to update total stock
+            await product.save();
+
+            // console.log(`📊 Final product stock after save: ${product.stock}`);
+          } else {
+            // console.log(
+            //   `❌ Variant not found: Size ${item.variantSize}, Color ${item.variantColor}`
+            // );
+            // If variant not found, create it
+            const newVariant = {
+              size: item.variantSize,
+              color: item.variantColor,
+              stock: item.qty || 0,
+              costPrice: item.costPrice || product.costPrice,
+            };
+            product.variants.push(newVariant);
+            await product.save();
+            // console.log(
+            //   `➕ Created new variant: ${item.variantSize}/${item.variantColor}`
+            // );
+          }
+        } else {
+          // Update main product stock (non-variant products)
+          const oldStock = product.stock || 0;
+          const qtyToAdd = item.qty || 0;
+          product.stock = oldStock + qtyToAdd;
+          await product.save();
+          // console.log(
+          //   `✅ Updated product ${product.code} stock: ${oldStock} + ${qtyToAdd} = ${product.stock}`
+          // );
+        }
+      } else {
+        // console.log(`❌ Product not found: ${item.code}`);
       }
     }
 
@@ -115,8 +178,6 @@ export const createPurchase = async (req, res) => {
     res.status(500).json({ error: "Failed to create purchase" });
   }
 };
-
-// PUT /api/purchases/:id (full update)
 // PUT /api/purchases/:id
 export const updatePurchase = async (req, res) => {
   try {
