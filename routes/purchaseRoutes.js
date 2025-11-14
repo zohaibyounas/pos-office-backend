@@ -1,7 +1,6 @@
-// routes/purchaseroute.js
+// routes/purchaseroute.js - UPDATED
 import express from "express";
 import multer from "multer";
-
 import {
   getAllPurchases,
   createPurchase,
@@ -10,8 +9,7 @@ import {
   getPurchase,
   addPayment,
 } from "../controllers/purchaseController.js";
-
-import Purchase from "../models/Purchase.js";
+import Purchase from "../models/Purchase.js"; // ADD THIS IMPORT
 
 const router = express.Router();
 
@@ -19,7 +17,7 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Report route
+// Report route - UPDATED for new fields
 router.get("/report", async (req, res) => {
   try {
     const { startDate, endDate, supplier, paymentType } = req.query;
@@ -39,12 +37,12 @@ router.get("/report", async (req, res) => {
     const purchases = await Purchase.find(filter).sort({ createdAt: -1 });
 
     const totalPurchases = purchases.reduce(
-      (sum, p) => sum + (p.grandTotal || 0),
+      (sum, p) => sum + (p.totalCost || 0), // Use totalCost instead of totalBill
       0
     );
     const totalPaid = purchases.reduce((sum, p) => sum + (p.paid || 0), 0);
-    const totalDiscount = purchases.reduce(
-      (sum, p) => sum + (p.discount || 0),
+    const totalQuantity = purchases.reduce(
+      (sum, p) => sum + (p.totalPurchaseQty || 0),
       0
     );
 
@@ -53,7 +51,7 @@ router.get("/report", async (req, res) => {
       summary: {
         totalPurchases,
         totalPaid,
-        totalDiscount,
+        totalQuantity,
         count: purchases.length,
       },
     });
@@ -66,7 +64,6 @@ router.get("/report", async (req, res) => {
 // ✅ CRUD routes
 router.get("/", getAllPurchases);
 router.get("/:id", getPurchase);
-
 router.post("/", upload.single("billImage"), createPurchase);
 router.put("/:id", upload.single("billImage"), updatePurchase);
 router.delete("/:id", deletePurchase);

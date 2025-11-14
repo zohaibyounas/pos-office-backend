@@ -46,4 +46,16 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// DELETE: delete a comment
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedComment = await Comment.findByIdAndDelete(req.params.id);
+    if (!deletedComment)
+      return res.status(404).json({ message: "Comment not found" });
+    res.json({ message: "Comment deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;
