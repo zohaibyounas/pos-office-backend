@@ -64,7 +64,7 @@ router.get("/report", async (req, res) => {
 // ✅ CRUD routes
 router.get("/", getAllPurchases);
 router.get("/:id", getPurchase);
-router.post("/", upload.single("billImage"), createPurchase);
+router.post("/", upload.array("billImages", 10), createPurchase);
 router.put("/:id", upload.single("billImage"), updatePurchase);
 router.delete("/:id", deletePurchase);
 

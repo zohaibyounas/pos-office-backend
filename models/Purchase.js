@@ -28,7 +28,7 @@ const purchaseSchema = new mongoose.Schema(
     totalPurchaseQty: { type: Number, default: 0 },
     totalCost: { type: Number, default: 0 },
     // totalBill field removed
-    billImage: { type: String, default: "" },
+    billImages: { type: [String], default: [] },
     payments: { type: [paymentSchema], default: [] },
     paid: { type: Number, default: 0 },
     balance: { type: Number, default: 0 },

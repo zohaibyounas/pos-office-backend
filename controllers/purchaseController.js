@@ -63,16 +63,18 @@ export const createPurchase = async (req, res) => {
     // });
 
     // Handle bill image upload
-    let billImageUrl = "";
-    if (req.file) {
-      try {
-        // console.log("Attempting Cloudinary upload...");
-        const uploadResult = await uploadToCloudinary(req.file);
-        billImageUrl = uploadResult.secure_url;
-        // console.log("Cloudinary upload successful:", billImageUrl);
-      } catch (uploadError) {
-        console.error("Cloudinary upload error:", uploadError);
-        billImageUrl = "upload_failed";
+    let billImageUrls = [];
+
+    // If multiple files are uploaded
+    if (req.files && req.files.length > 0) {
+      for (let file of req.files) {
+        try {
+          const uploadResult = await uploadToCloudinary(file);
+          billImageUrls.push(uploadResult.secure_url);
+        } catch (uploadError) {
+          console.error("Cloudinary upload error:", uploadError);
+          billImageUrls.push("upload_failed");
+        }
       }
     }
 
@@ -87,17 +89,16 @@ export const createPurchase = async (req, res) => {
 
     // Create purchase
     const newPurchase = new Purchase({
-      purchaseName, // NEW FIELD
+      purchaseName,
       supplier,
       totalPurchaseQty: Number(totalPurchaseQty),
       totalCost: Number(totalCost),
-      billImage: billImageUrl,
+      billImages: billImageUrls, // <-- changed
       paymentType: paymentType || "Cash",
       paid: initialPayment,
       balance: balance,
       description: description || "",
     });
-
     // Add initial payment if provided
     if (initialPayment > 0) {
       newPurchase.payments.push({
